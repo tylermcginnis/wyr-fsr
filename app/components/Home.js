@@ -5,6 +5,7 @@ import Navbar from './Navbar'
 export default class Home extends Component {
   static propTypes = {
     username: PropTypes.string.isRequired,
+    questions: PropTypes.array.isRequired,
     toNewQuestion: PropTypes.func.isRequired,
   }
   state = {}
@@ -23,6 +24,9 @@ export default class Home extends Component {
         />
         <Text>
           Username: {this.props.username}
+        </Text>
+        <Text>
+          Questions: {JSON.stringify(this.props.questions, null, 2)}
         </Text>
       </View>
     )

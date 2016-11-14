@@ -1,5 +1,5 @@
 import React, { PropTypes, Component } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native'
 import Navbar from './Navbar'
 
 export default class NewQuestion extends Component {
@@ -7,10 +7,15 @@ export default class NewQuestion extends Component {
     onCancel: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,
   }
-  state = {}
+  state = {
+    title: '',
+    firstOption: '',
+    secondOption: '',
+  }
   render () {
+    const { title, firstOption, secondOption } = this.state
     return (
-      <View>
+      <View style={styles.container}>
         <Navbar
           title='New Question'
           leftButton={() => (
@@ -20,27 +25,65 @@ export default class NewQuestion extends Component {
                 <Text style={styles.navText}>Cancel</Text>
             </TouchableOpacity>
           )}
-          rightButton={() => (
-            <TouchableOpacity
-              onPress={this.props.onSubmit}
-              style={[{marginRight: 10}, styles.navContainer]}>
-                <Text style={styles.navText}>Submit</Text>
-            </TouchableOpacity>
-          )}
+          rightButton={() => {
+            return !title || !firstOption || !secondOption
+              ? <View />
+              : <TouchableOpacity
+                  onPress={() => this.props.onSubmit({title, firstOption, secondOption})}
+                  style={[{marginRight: 10}, styles.navContainer]}>
+                    <Text style={styles.navText}>Submit</Text>
+                </TouchableOpacity>
+          }}
         />
-        <Text>
-          NewQuestion
-        </Text>
+        <View style={styles.inputContainer}>
+          <Text>Title</Text>
+          <TextInput
+            style={styles.input}
+            value={title}
+            onChangeText={(title) => this.setState({title})} />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text>First Option</Text>
+          <TextInput
+            style={styles.input}
+            value={firstOption}
+            onChangeText={(firstOption) => this.setState({firstOption})} />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text>Second Option</Text>
+          <TextInput
+            style={styles.input}
+            value={secondOption}
+            onChangeText={(secondOption) => this.setState({secondOption})} />
+        </View>
       </View>
     )
   }
 }
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#fff',
+    flex: 1,
+  },
   navContainer: {
     justifyContent: 'center',
   },
   navText: {
     fontSize: 15,
-  }
+  },
+  inputContainer: {
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingLeft: 15,
+    paddingRight: 15,
+    margin: 10,
+  },
+  input: {
+    height: 40,
+    borderColor: '#c5c5c5',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 3,
+  },
 })

@@ -3,7 +3,7 @@ import { View, Text, ActivityIndicator, Navigator, Platform } from 'react-native
 import Username from './components/Username'
 import Home from './components/Home'
 import NewQuestion from './components/NewQuestion'
-import { getUsername } from './api'
+import { getUsername, login, getQuestions } from './api'
 
 function Loading () {
   return (
@@ -17,18 +17,29 @@ export default class WouldYouRather extends Component {
   state = {
     loading: true,
     username: '',
+    questions: [],
   }
   componentDidMount () {
-    getUsername()
-      .then((username) => {
-        this.setState({
-          username,
-          loading: false,
-        })
+    Promise.all([
+      getUsername(),
+      getQuestions(),
+    ]).then(([username, questions]) => {
+      this.setState({
+        username,
+        questions,
+        loading: false,
       })
+    })
   }
   handleSubmitUsername = (username) => {
+    login(username)
     this.setState({username})
+  }
+  handleSubmitQuestion = (question, navigator) => {
+    this.setState({
+      questions: this.state.questions.concat([{...question, timestamp: Date.now()}])
+    })
+    navigator.pop()
   }
   renderScene = (route, navigator) => {
     if (this.state.loading === true) {
@@ -39,11 +50,12 @@ export default class WouldYouRather extends Component {
       return (
         <NewQuestion
           onCancel={navigator.pop}
-          onSubmit={() => ({})} />
+          onSubmit={(question) => this.handleSubmitQuestion(question, navigator)} />
       )
     } else {
       return (
         <Home
+          questions={this.state.questions}
           username={this.state.username}
           toNewQuestion={() => navigator.push({newQuestion: true})} />
       )
