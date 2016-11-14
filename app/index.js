@@ -1,9 +1,9 @@
 import React, { PropTypes, Component } from 'react'
-import { View, Text, ActivityIndicator, Navigator, Platform } from 'react-native'
+import { View, Text, ActivityIndicator, Navigator, Platform, ListView } from 'react-native'
 import Username from './components/Username'
 import Home from './components/Home'
 import NewQuestion from './components/NewQuestion'
-import { getUsername, login, getQuestions } from './api'
+import { getUsername, login, getQuestions, saveQuestions } from './api'
 
 function Loading () {
   return (
@@ -14,19 +14,25 @@ function Loading () {
 }
 
 export default class WouldYouRather extends Component {
-  state = {
-    loading: true,
-    username: '',
-    questions: [],
+  constructor (props) {
+    super(props)
+    this.questions = []
+    this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
+    this.state = {
+      dataSource: this.ds.cloneWithRows([]),
+      loading: true,
+      username: '',
+    }
   }
   componentDidMount () {
     Promise.all([
       getUsername(),
       getQuestions(),
     ]).then(([username, questions]) => {
+      this.questions = questions
       this.setState({
         username,
-        questions,
+        dataSource: this.ds.cloneWithRows(questions),
         loading: false,
       })
     })
@@ -36,9 +42,23 @@ export default class WouldYouRather extends Component {
     this.setState({username})
   }
   handleSubmitQuestion = (question, navigator) => {
+    const newQuestions = this.questions.concat([{
+      title: question.title,
+      author: this.state.username,
+      timestamp: Date.now(),
+      firstOption: {
+        votes: 0,
+        option: question.firstOption,
+      },
+      secondOption: {
+        votes: 0,
+        option: question.secondOption,
+      }
+    }])
     this.setState({
-      questions: this.state.questions.concat([{...question, timestamp: Date.now()}])
+      dataSource: this.ds.cloneWithRows(newQuestions),
     })
+    saveQuestions(newQuestions)
     navigator.pop()
   }
   renderScene = (route, navigator) => {
@@ -55,8 +75,7 @@ export default class WouldYouRather extends Component {
     } else {
       return (
         <Home
-          questions={this.state.questions}
-          username={this.state.username}
+          dataSource={this.state.dataSource}
           toNewQuestion={() => navigator.push({newQuestion: true})} />
       )
     }

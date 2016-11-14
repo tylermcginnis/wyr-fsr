@@ -19,6 +19,10 @@ export function getQuestions () {
 }
 
 function setDummyQuestions () {
-  return AsyncStorage.setItem('questions', JSON.stringify(dummyData))
+  return saveQuestions(dummyData)
     .then(() => dummyData)
+}
+
+export function saveQuestions (questions) {
+  return AsyncStorage.setItem('questions', JSON.stringify(questions))
 }

@@ -1,6 +1,7 @@
 const questions = [
   {
     timestamp: 1479101459330,
+    author: 'donaldtrump',
     title: 'Use Angular or React?',
     firstOption: {
       votes: 24,
@@ -13,6 +14,7 @@ const questions = [
   },
   {
     timestamp: 1478001459330,
+    author: 'dabramov',
     title: 'Control space or time?',
     firstOption: {
       votes: 16,
@@ -25,6 +27,7 @@ const questions = [
   },
   {
     timestamp: 1477301459330,
+    author: 'ripharambe',
     title: 'Live in the mountains or the desert?',
     firstOption: {
       votes: 25,
@@ -37,6 +40,7 @@ const questions = [
   },
   {
     timestamp: 1477201459330,
+    author: 'jjgoodman',
     title: 'Be deaf or blind?',
     firstOption: {
       votes: 10,
@@ -49,6 +53,7 @@ const questions = [
   },
   {
     timestamp: 1477101459330,
+    author: 'donaldddglover',
     title: 'Have telepathy or telekinesis?',
     firstOption: {
       votes: 9,

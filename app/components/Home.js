@@ -1,14 +1,15 @@
 import React, { PropTypes, Component } from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, ScrollView, Text, TouchableOpacity, ListView } from 'react-native'
 import Navbar from './Navbar'
 
 export default class Home extends Component {
   static propTypes = {
-    username: PropTypes.string.isRequired,
-    questions: PropTypes.array.isRequired,
+    dataSource: PropTypes.object.isRequired,
     toNewQuestion: PropTypes.func.isRequired,
   }
-  state = {}
+  renderRow = (question) => {
+    return <Text>{JSON.stringify(question)}</Text>
+  }
   render () {
     return (
       <View>
@@ -22,12 +23,9 @@ export default class Home extends Component {
             </TouchableOpacity>
           )}
         />
-        <Text>
-          Username: {this.props.username}
-        </Text>
-        <Text>
-          Questions: {JSON.stringify(this.props.questions, null, 2)}
-        </Text>
+        <ScrollView>
+          <ListView renderRow={this.renderRow} dataSource={this.props.dataSource} />
+        </ScrollView>
       </View>
     )
   }
