@@ -3,7 +3,8 @@ import { View, Text, ActivityIndicator, Navigator, Platform, ListView } from 're
 import Username from './components/Username'
 import Home from './components/Home'
 import NewQuestion from './components/NewQuestion'
-import { getUsername, login, getQuestions, saveQuestions } from './api'
+import Question from './components/Question'
+import { getUsername, login, getQuestions, saveQuestions, getUsersVotes } from './api'
 
 function Loading () {
   return (
@@ -25,16 +26,24 @@ export default class WouldYouRather extends Component {
     }
   }
   componentDidMount () {
-    Promise.all([
-      getUsername(),
-      getQuestions(),
-    ]).then(([username, questions]) => {
-      this.questions = questions
-      this.setState({
-        username,
-        dataSource: this.ds.cloneWithRows(questions),
-        loading: false,
+    let username = ''
+    getUsername()
+      .then((name) => {
+        username = name
+        return name
       })
+      .then(() => Promise.all([
+        getUsersVotes(username),
+        getQuestions(),
+      ]))
+      .then(([votes, questions]) => {
+        this.questions = questions
+        this.setState({
+          username,
+          dataSource: this.ds.cloneWithRows(questions),
+          votes,
+          loading: false,
+        })
     })
   }
   handleSubmitUsername = (username) => {
@@ -72,10 +81,19 @@ export default class WouldYouRather extends Component {
           onCancel={navigator.pop}
           onSubmit={(question) => this.handleSubmitQuestion(question, navigator)} />
       )
+    } else if (route.question === true) {
+      return (
+        <Question
+          onCancel={navigator.pop}
+          hasVoted={!!this.state.votes[route.questionInfo.id]}
+          info={route.questionInfo} />
+      )
     } else {
       return (
         <Home
+          votes={this.state.votes}
           dataSource={this.state.dataSource}
+          toQuestion={(questionInfo) => navigator.push({question: true, questionInfo})}
           toNewQuestion={() => navigator.push({newQuestion: true})} />
       )
     }

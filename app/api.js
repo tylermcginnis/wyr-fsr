@@ -1,6 +1,10 @@
 import { AsyncStorage } from 'react-native'
 import dummyData from './DUMMY-DATA'
 
+function createFakeRandomishNumber () {
+  return new Date().valueOf()
+}
+
 export function login (username) {
   return AsyncStorage.setItem('username', username)
 }
@@ -25,4 +29,13 @@ function setDummyQuestions () {
 
 export function saveQuestions (questions) {
   return AsyncStorage.setItem('questions', JSON.stringify(questions))
+}
+
+export function getUsersVotes (username) {
+  return AsyncStorage.getItem(`${username}-votes`)
+    .then((votes) => JSON.parse(votes) || {})
+}
+
+export function setUsersVotes (username, votes) {
+  return AsyncStorage.setItem(`${username}-votes`, JSON.stringify(votes))
 }

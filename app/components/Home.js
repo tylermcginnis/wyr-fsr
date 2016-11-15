@@ -1,14 +1,23 @@
 import React, { PropTypes, Component } from 'react'
-import { View, ScrollView, Text, TouchableOpacity, ListView } from 'react-native'
+import { View, ScrollView, Text, TouchableOpacity, ListView, StyleSheet } from 'react-native'
 import Navbar from './Navbar'
 
 export default class Home extends Component {
   static propTypes = {
     dataSource: PropTypes.object.isRequired,
+    votes: PropTypes.object.isRequired,
     toNewQuestion: PropTypes.func.isRequired,
+    toQuestion: PropTypes.func.isRequired,
   }
   renderRow = (question) => {
-    return <Text>{JSON.stringify(question)}</Text>
+    return  (
+      <TouchableOpacity
+        onPress={() => this.props.toQuestion(question)}>
+          <View style={[styles.row, {borderLeftColor: this.props.votes[question.id] === true ? 'green' : 'red'}]}>
+            <Text>{question.title}</Text>
+          </View>
+      </TouchableOpacity>
+    )
   }
   render () {
     return (
@@ -30,3 +39,11 @@ export default class Home extends Component {
     )
   }
 }
+
+const styles = StyleSheet.create({
+  row: {
+    borderLeftWidth: 2,
+    margin: 10,
+    padding: 10
+  }
+})
