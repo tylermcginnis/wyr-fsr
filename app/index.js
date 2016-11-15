@@ -4,7 +4,7 @@ import Username from './components/Username'
 import Home from './components/Home'
 import NewQuestion from './components/NewQuestion'
 import Question from './components/Question'
-import { getUsername, login, getQuestions, saveQuestions, getUsersVotes } from './api'
+import { getUsername, login, getQuestions, saveQuestions, getUsersVotes, setUsersVotes, createFakeRandomishNumber } from './api'
 
 function Loading () {
   return (
@@ -22,6 +22,7 @@ export default class WouldYouRather extends Component {
     this.state = {
       dataSource: this.ds.cloneWithRows([]),
       loading: true,
+      usersVotes: {},
       username: '',
     }
   }
@@ -36,12 +37,12 @@ export default class WouldYouRather extends Component {
         getUsersVotes(username),
         getQuestions(),
       ]))
-      .then(([votes, questions]) => {
+      .then(([usersVotes, questions]) => {
         this.questions = questions
         this.setState({
           username,
           dataSource: this.ds.cloneWithRows(questions),
-          votes,
+          usersVotes,
           loading: false,
         })
     })
@@ -51,7 +52,7 @@ export default class WouldYouRather extends Component {
     this.setState({username})
   }
   handleSubmitQuestion = (question, navigator) => {
-    const newQuestions = this.questions.concat([{
+    this.questions = this.questions.concat([{
       title: question.title,
       author: this.state.username,
       timestamp: Date.now(),
@@ -62,13 +63,38 @@ export default class WouldYouRather extends Component {
       secondOption: {
         votes: 0,
         option: question.secondOption,
-      }
+      },
+      id: createFakeRandomishNumber(),
     }])
     this.setState({
-      dataSource: this.ds.cloneWithRows(newQuestions),
+      dataSource: this.ds.cloneWithRows(this.questions),
     })
-    saveQuestions(newQuestions)
+
+    saveQuestions(this.questions)
     navigator.pop()
+  }
+  handleVote = (vote, id) => {
+    this.questions = this.questions.map((question) => {
+      if (id === question.id) {
+        return {
+          ...question,
+          [vote]: {
+            ...question[vote],
+            votes: question[vote].votes + 1
+          }
+        }
+      }
+      return question
+    })
+
+    const usersVotes = {...this.state.usersVotes, [id]: true}
+
+    this.setState({
+      usersVotes,
+      dataSource: this.ds.cloneWithRows(this.questions)
+    })
+
+    setUsersVotes(this.state.username, usersVotes)
   }
   renderScene = (route, navigator) => {
     if (this.state.loading === true) {
@@ -85,15 +111,16 @@ export default class WouldYouRather extends Component {
       return (
         <Question
           onCancel={navigator.pop}
-          hasVoted={!!this.state.votes[route.questionInfo.id]}
-          info={route.questionInfo} />
+          onVote={this.handleVote}
+          hasVoted={!!this.state.usersVotes[route.id]}
+          info={this.questions.find((question) => question.id === route.id)} />
       )
     } else {
       return (
         <Home
-          votes={this.state.votes}
+          usersVotes={this.state.usersVotes}
           dataSource={this.state.dataSource}
-          toQuestion={(questionInfo) => navigator.push({question: true, questionInfo})}
+          toQuestion={(id) => navigator.push({question: true, id})}
           toNewQuestion={() => navigator.push({newQuestion: true})} />
       )
     }

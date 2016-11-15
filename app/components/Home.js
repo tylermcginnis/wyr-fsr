@@ -5,15 +5,15 @@ import Navbar from './Navbar'
 export default class Home extends Component {
   static propTypes = {
     dataSource: PropTypes.object.isRequired,
-    votes: PropTypes.object.isRequired,
+    usersVotes: PropTypes.object.isRequired,
     toNewQuestion: PropTypes.func.isRequired,
     toQuestion: PropTypes.func.isRequired,
   }
   renderRow = (question) => {
     return  (
       <TouchableOpacity
-        onPress={() => this.props.toQuestion(question)}>
-          <View style={[styles.row, {borderLeftColor: this.props.votes[question.id] === true ? 'green' : 'red'}]}>
+        onPress={() => this.props.toQuestion(question.id)}>
+          <View style={[styles.row, {borderLeftColor: this.props.usersVotes[question.id] === true ? 'green' : 'red'}]}>
             <Text>{question.title}</Text>
           </View>
       </TouchableOpacity>

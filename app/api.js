@@ -1,7 +1,7 @@
 import { AsyncStorage } from 'react-native'
 import dummyData from './DUMMY-DATA'
 
-function createFakeRandomishNumber () {
+export function createFakeRandomishNumber () {
   return new Date().valueOf()
 }
 
